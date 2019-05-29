@@ -8,7 +8,7 @@ import eeg_pipeline.config as config
 # the main preprocess function
 def preprocess(subjname):    
     # import the data
-    fname = os.path.join(os.getcwd(), 'Data', subjname + '.vhdr')
+    fname = os.path.join(config.loadpath, subjname + '.vhdr')
     raw = mne.io.read_raw_brainvision(fname)
     raw.load_data()
 
@@ -16,7 +16,7 @@ def preprocess(subjname):
     raw.crop(15,None)
 
     # remove channels we don't care about
-    raw.drop_channels(('HEOGR','HEOGL','VEOGU','VEOGL','M1','M2'))
+    raw.drop_channels(['HEOGR','HEOGL','VEOGU','VEOGL','M1','M2'])
 
     # get and import electrode locations
     montage = mne.channels.read_montage('standard_1005')
@@ -24,7 +24,6 @@ def preprocess(subjname):
 
     # create copy for use in ICA
     raw_4_ica = raw.copy()
-    raw_4_ica.drop_channels(['STI 014'])
 
     # filter the raw copy for ICA
     hi_pass, lo_pass = 1 , 40       # we hardcode these params for better ICA decomp
@@ -72,12 +71,16 @@ def preprocess(subjname):
 
     # now we create the true epoch set before applying the ica to that
     # filter the raw data
-    raw.filter(config.params['hi_pass'], None)
-    raw.filter(None, config.params['lo_pass'])
+    raw.filter(config.preproc_params['hi_pass'], None)
+    raw.filter(None, config.preproc_params['lo_pass'])
 
     # extract events - BV data has markers as annotations
     events, event_id = mne.events_from_annotations(raw)
 
+    # AWFUL HACK TO FIX TIMING PROBLEMS OF EMBODIMENT TRIGGERS £
+    events[:,0] = events[:,0] - round(raw.info['sfreq']*.117)
+    # END OF HACK #
+    
     # rename the events to something more useful
     evt_keys = list(config.event_info.keys())
     new_event_id = {}
@@ -91,8 +94,8 @@ def preprocess(subjname):
     # create epochs
     picks = mne.pick_types(raw.info, eeg=True,
                         stim=False, eog=False)
-    tmin, tmax = config.params['epoch_win']
-    baseline = (None, 0.0) # None means the earliest possible
+    tmin, tmax = config.preproc_params['epoch_win']
+    baseline = config.preproc_params['base_win']
     epochs = mne.Epochs(raw, events=events, tmin=tmin, event_id=new_event_id, tmax=tmax, baseline=baseline, picks=picks)  
 
     # remove the bad channels identified earlier
@@ -125,7 +128,7 @@ def preprocess(subjname):
     epochs.set_eeg_reference(ref_channels='average',projection=False)
 
     # save the data
-    fname = subjname + '-epo.fif'
+    fname = os.path.join(config.savepath, subjname + '-epo.fif')
     epochs.save(fname)
 
 # function to automatically find bad data
