@@ -1,14 +1,14 @@
 import mne
 import os.path as op
 import numpy as np
-from mne.stats import spatio_temporal_cluster_test
+from mne.stats import spatio_temporal_cluster_test, spatio_temporal_cluster_1samp_test
 from mne.datasets import sample
 from mne.channels import find_ch_connectivity
 import eeg_pipeline.config as config
 import pickle
 
 def run_sensor_stats():
-    for c in range(len(config.stats_params)):
+    for c in np.arange(len(config.stats_params)):
         subjlist = config.stats_params[c]['subjlist']
         condnames = config.stats_params[c]['condnames']
         tmin, tmax = config.stats_params[c]['statwin']
@@ -49,17 +49,19 @@ def run_sensor_stats():
 
         # run the stats
         if config.stats_params[c]['stat'] == 'indep':
-            stat_fun = mne.stats.f_oneway
             alldata = [cond0,cond1]
-        elif config.stats_params[c]['stat'] == 'dep':
-            # we have to use 1-sample t-tests here so also need to subtract conditions
-            stat_fun = mne.stats.ttest_1samp_no_p
-            alldata = [cond0 - cond1]
-
-        cluster_stats = spatio_temporal_cluster_test(alldata, n_permutations=config.stats_params[c]['n_permutations'],
+            cluster_stats = spatio_temporal_cluster_test(alldata, n_permutations=config.stats_params[c]['n_permutations'],
                                                     threshold=config.stats_params[c]['threshold'], 
                                                     tail=config.stats_params[c]['tail'],
-                                                    n_jobs=1, buffer_size=None, stat_fun=stat_fun,
+                                                    n_jobs=1, buffer_size=None,
+                                                    connectivity=connectivity[0])
+        elif config.stats_params[c]['stat'] == 'dep':
+            # we have to use 1-sample t-tests here so also need to subtract conditions
+            alldata = cond0 - cond1
+            cluster_stats = spatio_temporal_cluster_1samp_test(alldata, n_permutations=config.stats_params[c]['n_permutations'],
+                                                    threshold=config.stats_params[c]['threshold'], 
+                                                    tail=config.stats_params[c]['tail'],
+                                                    n_jobs=1, buffer_size=None,
                                                     connectivity=connectivity[0])
 
         # extract stats of interest
@@ -70,6 +72,8 @@ def run_sensor_stats():
         print('There are {} significant clusters'.format(good_cluster_inds.size))
         if good_cluster_inds.size != 0:
             print('p-values: {}'.format(p_values[good_cluster_inds]))
+        else:
+            print('Minimum p-value: {}'.format(min(p_values)))
 
         # save
         save_name = op.join(config.stat_path, config.stats_params[c]['analysis_name'] + '.dat')
