@@ -1,4 +1,4 @@
-import os
+import os.path as op
 import numpy as np
 import mne
 import matplotlib.pyplot as plt
@@ -8,7 +8,7 @@ import eeg_pipeline.config as config
 # the main preprocess function
 def preprocess(subjname):    
     # import the data
-    fname = os.path.join(config.loadpath, subjname + '.vhdr')
+    fname = op.join(config.raw_path, subjname + '.vhdr')
     raw = mne.io.read_raw_brainvision(fname)
     raw.load_data()
 
@@ -112,24 +112,24 @@ def preprocess(subjname):
     epochs.drop(bad_trials,'AUTO')
 
     # interpolate bad channels back into data
-    epochs.interpolate_bads(reset_bads=True)
+    epochs.interpolate_bads(reset_bads=False)
 
     # baseline correct again as ICA will have affected
     epochs.apply_baseline()     # with no arguments this defaults to (None,0)
 
     # would be good to plot and check here, but can at least plot it
-    epochs.plot(scalings=dict(eeg=20e-5),n_epochs=5,n_channels=len(epochs.info['chs']),block=True)
-    
+    epochs.plot(scalings=dict(eeg=20e-5),n_epochs=5,n_channels=len(epochs.info['chs']),block=True)    
+
     # deal with any new bad channels or trials identified by user
-    epochs.interpolate_bads(reset_bads=True)
+    epochs.interpolate_bads(reset_bads=False)
     epochs.drop_bad()
     
     # convert to average reference
     epochs.set_eeg_reference(ref_channels='average',projection=False)
 
     # save the data
-    fname = os.path.join(config.savepath, subjname + '-epo.fif')
-    epochs.save(fname)
+    fname = op.join(config.epoch_path, subjname + '-epo.fif')
+    epochs.save(fname, overwrite=True)
 
 # function to automatically find bad data
 def find_bad_data(epoch_data):
