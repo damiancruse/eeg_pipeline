@@ -13,6 +13,8 @@ def run_sensor_stats():
         condnames = config.stats_params[c]['condnames']
         tmin, tmax = config.stats_params[c]['statwin']
         nsubjs = len(subjlist)
+        evokeds0 = []
+        evokeds1 = []
 
         for subj_idx, subj in enumerate(subjlist):
             subj_file = op.join(config.epoch_path, subj + config.stats_params[c]['suffix'])
@@ -31,19 +33,24 @@ def run_sensor_stats():
                 cond0 = np.zeros((cond0_orig.shape[0],len_tpoi[0],cond0_orig.shape[2]))
                 cond1 = np.zeros((cond1_orig.shape[0],len_tpoi[0],cond0_orig.shape[2]))
             
-            if nsubjs != 1:
-                cond0_orig[subj_idx] = np.transpose(epochs[condnames[0]].average().data)
-                cond1_orig[subj_idx] = np.transpose(epochs[condnames[1]].average().data)
+            # store as evoked structure for later plotting
+            ev0_temp = epochs[condnames[0]].average().filter(l_freq=None,h_freq=20).apply_baseline(config.preproc_params['base_win'])
+            ev1_temp = epochs[condnames[1]].average().filter(l_freq=None,h_freq=20).apply_baseline(config.preproc_params['base_win'])
+            evokeds0.append(ev0_temp)
+            evokeds1.append(ev1_temp)
 
+            if nsubjs != 1:
+                cond0_orig[subj_idx] = np.transpose(ev0_temp.data)
+                cond1_orig[subj_idx] = np.transpose(ev1_temp.data)
                 # select time-window of interest
-                epochs.crop(tmin=tmin, tmax=tmax)
-                cond0[subj_idx] = np.transpose(epochs[condnames[0]].average().data)
-                cond1[subj_idx] = np.transpose(epochs[condnames[1]].average().data)
+                ev0_temp.crop(tmin=tmin, tmax=tmax)
+                ev1_temp.crop(tmin=tmin, tmax=tmax)
+                cond0[subj_idx] = np.transpose(ev0_temp.data)
+                cond1[subj_idx] = np.transpose(ev1_temp.data)
             else:
                 cond0 = np.transpose(epochs[condnames[0]].get_data(), (0, 2, 1))
                 cond1 = np.transpose(epochs[condnames[1]].get_data(), (0, 2, 1))
             
-
         # find electrode neighbourhoods
         connectivity = find_ch_connectivity(epochs.info, ch_type='eeg')
 
@@ -75,13 +82,20 @@ def run_sensor_stats():
         else:
             print('Minimum p-value: {}'.format(min(p_values)))
 
+        # some final averaging and tidying
+        cond0_avg = mne.grand_average(evokeds0)
+        cond1_avg = mne.grand_average(evokeds1)
+        diffcond_avg = mne.combine_evoked([cond0_avg, -cond1_avg], 'equal')
+
         # save
         save_name = op.join(config.stat_path, config.stats_params[c]['analysis_name'] + '.dat')
         
         results = {
             'cluster_stats': cluster_stats,
             'good_cluster_inds': good_cluster_inds,
-            'alldata': alldata
+            'alldata': alldata,
+            'evokeds0': evokeds0,
+            'evokeds1': evokeds1
         }
 
         pickle_out = open(save_name,'wb')

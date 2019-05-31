@@ -33,13 +33,14 @@ stats_params = (
     {
     'analysis_name': 'within',   # the analysis will be saved under this name, so make it good
     'subjlist': ['S01_EB', 'S02_EB', 'S03_EB', 'S04_EB', 'S05_EB', 'S06_EB', 'S07_EB', 'S08_EB',
-                'S09_EB', 'S10_EB', 'S11_EB', 'S12_EB', 'S13_EB', 'S15_EB'
+                'S09_EB', 'S10_EB', 'S11_EB', 'S12_EB', 'S13_EB', 'S14_EB', 'S15_EB', 'S16_EB',
+                'S17_EB', 'S18_EB', 'S19_EB', 'S20_EB', 'S21_EB', 'S22_EB', 'S23_EB', 'S24_EB'
                 ],
     'suffix': '-epo.fif',
-    'statwin': [.1, .4],
+    'statwin': [.160, .270],
     'condnames': ['motor','non-motor'], # conditions to compare
     'stat': 'dep',                            # indep or dep
-    'threshold': None,                          # empty means p<.05 for F only; for TFCE=dict(start=0, step=0.2)
+    'threshold': None, #dict(start=0, step=.2),         # None means p<.05 for F only; for TFCE=dict(start=0, step=0.2)
     'p_accept': .05,                            # cluster threshold
     'tail': 0,                                  # tail of test; 1, 0, or -1
     'n_permutations': 200                       # at least 1000
