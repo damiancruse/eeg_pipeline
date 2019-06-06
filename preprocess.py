@@ -124,6 +124,9 @@ def preprocess(subjname):
     epochs.interpolate_bads(reset_bads=False)
     epochs.drop_bad()
     
+    # put the reference channel back in
+    epochs = mne.add_reference_channels(epochs,'CPz',copy=False)
+
     # convert to average reference
     epochs.set_eeg_reference(ref_channels='average',projection=False)
 
