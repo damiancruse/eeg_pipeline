@@ -44,6 +44,7 @@ def finalise():
                     cond_temp.apply_hilbert(envelope=True)
                     # save a version of this in case single-subject analysis wanted later
                     tf_temp = cond_temp.copy()
+                    tf_temp.filter(l_freq=None,h_freq=config.finalise_params[c]['lo_pass'])
                     tf_temp.apply_baseline(config.finalise_params[c]['base_win'])
                     tf_save_name = (subj + '_' + config.finalise_params[c]['suffix'] + '_' + cond + '-epo.fif')
                     tf_fname = op.join(config.epoch_path,tf_save_name)

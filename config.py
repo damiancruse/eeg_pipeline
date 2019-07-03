@@ -41,7 +41,7 @@ finalise_params = (
         'suffix': 'erp',
         'condnames': ['motor','non-motor'], 
         'subconds': None,
-        'avg_method': 'mean',
+        'avg_method': 'trim',
         'lo_pass': 20,
         'base_win': (-.2, 0)
     },
@@ -54,7 +54,7 @@ finalise_params = (
         'suffix': 'alpha',
         'condnames': ['motor','non-motor'],
         'bandpower': [8, 13],
-        'avg_method': 'mean',
+        'avg_method': 'trim',
         'lo_pass': 20,
         'base_win': (-.2, 0)
     },
@@ -67,7 +67,7 @@ finalise_params = (
         'suffix': 'beta',
         'condnames': ['motor','non-motor'],
         'bandpower': [13, 30],
-        'avg_method': 'mean',
+        'avg_method': 'trim',
         'lo_pass': 20,
         'base_win': (-.2, 0)
     },
@@ -77,78 +77,247 @@ finalise_params = (
 #### STATS ####
 
 # define stats paramaters here
-stats_params = (
-    # analysis 1
+stats_params = [
+    # {
+    #     'analysis_name': 'erp',   # the analysis will be saved under this name, so make it good        
+    #     'dat0_files': [
+    #         'S01_EB-epo_erp_motor-ave', 
+    #         'S02_EB-epo_erp_motor-ave', 
+    #         'S03_EB-epo_erp_motor-ave', 
+    #         'S04_EB-epo_erp_motor-ave', 
+    #         'S05_EB-epo_erp_motor-ave', 
+    #         'S06_EB-epo_erp_motor-ave', 
+    #         'S07_EB-epo_erp_motor-ave', 
+    #         'S08_EB-epo_erp_motor-ave',
+    #         'S09_EB-epo_erp_motor-ave', 
+    #         'S10_EB-epo_erp_motor-ave', 
+    #         'S11_EB-epo_erp_motor-ave', 
+    #         'S12_EB-epo_erp_motor-ave', 
+    #         'S13_EB-epo_erp_motor-ave', 
+    #         'S14_EB-epo_erp_motor-ave', 
+    #         'S15_EB-epo_erp_motor-ave', 
+    #         'S16_EB-epo_erp_motor-ave',
+    #         'S17_EB-epo_erp_motor-ave', 
+    #         'S18_EB-epo_erp_motor-ave', 
+    #         'S19_EB-epo_erp_motor-ave', 
+    #         'S20_EB-epo_erp_motor-ave', 
+    #         'S21_EB-epo_erp_motor-ave', 
+    #         'S22_EB-epo_erp_motor-ave', 
+    #         'S23_EB-epo_erp_motor-ave', 
+    #         'S24_EB-epo_erp_motor-ave'
+    #         ],
+    #     'dat1_files': [
+    #         'S01_EB-epo_erp_non-motor-ave', 
+    #         'S02_EB-epo_erp_non-motor-ave', 
+    #         'S03_EB-epo_erp_non-motor-ave', 
+    #         'S04_EB-epo_erp_non-motor-ave', 
+    #         'S05_EB-epo_erp_non-motor-ave', 
+    #         'S06_EB-epo_erp_non-motor-ave', 
+    #         'S07_EB-epo_erp_non-motor-ave', 
+    #         'S08_EB-epo_erp_non-motor-ave',
+    #         'S09_EB-epo_erp_non-motor-ave', 
+    #         'S10_EB-epo_erp_non-motor-ave', 
+    #         'S11_EB-epo_erp_non-motor-ave', 
+    #         'S12_EB-epo_erp_non-motor-ave', 
+    #         'S13_EB-epo_erp_non-motor-ave', 
+    #         'S14_EB-epo_erp_non-motor-ave', 
+    #         'S15_EB-epo_erp_non-motor-ave', 
+    #         'S16_EB-epo_erp_non-motor-ave',
+    #         'S17_EB-epo_erp_non-motor-ave', 
+    #         'S18_EB-epo_erp_non-motor-ave', 
+    #         'S19_EB-epo_erp_non-motor-ave', 
+    #         'S20_EB-epo_erp_non-motor-ave', 
+    #         'S21_EB-epo_erp_non-motor-ave', 
+    #         'S22_EB-epo_erp_non-motor-ave', 
+    #         'S23_EB-epo_erp_non-motor-ave', 
+    #         'S24_EB-epo_erp_non-motor-ave'
+    #         ],
+    #     'statwin': [.16, .27],
+    #     'condnames': ['motor','non-motor'], # Only used for plotting and storing if is a group study
+    #     'stat': 'dep',                            # indep or dep
+    #     'threshold': .05,  # alpha of the parametric step; for TFCE=dict(start=0, step=0.2)
+    #     'p_accept': .05,                            # cluster threshold
+    #     'tail': 0,                                  # tail of test; 1, 0, or -1
+    #     'n_permutations': 1000                       # at least 1000
+    #     },
+    # {
+    #     'analysis_name': 'alpha',   # the analysis will be saved under this name, so make it good        
+    #     'dat0_files': [
+    #         'S01_EB-epo_alpha_motor-ave', 
+    #         'S02_EB-epo_alpha_motor-ave', 
+    #         'S03_EB-epo_alpha_motor-ave', 
+    #         'S04_EB-epo_alpha_motor-ave', 
+    #         'S05_EB-epo_alpha_motor-ave', 
+    #         'S06_EB-epo_alpha_motor-ave', 
+    #         'S07_EB-epo_alpha_motor-ave', 
+    #         'S08_EB-epo_alpha_motor-ave',
+    #         'S09_EB-epo_alpha_motor-ave', 
+    #         'S10_EB-epo_alpha_motor-ave', 
+    #         'S11_EB-epo_alpha_motor-ave', 
+    #         'S12_EB-epo_alpha_motor-ave', 
+    #         'S13_EB-epo_alpha_motor-ave', 
+    #         'S14_EB-epo_alpha_motor-ave', 
+    #         'S15_EB-epo_alpha_motor-ave', 
+    #         'S16_EB-epo_alpha_motor-ave',
+    #         'S17_EB-epo_alpha_motor-ave', 
+    #         'S18_EB-epo_alpha_motor-ave', 
+    #         'S19_EB-epo_alpha_motor-ave', 
+    #         'S20_EB-epo_alpha_motor-ave', 
+    #         'S21_EB-epo_alpha_motor-ave', 
+    #         'S22_EB-epo_alpha_motor-ave', 
+    #         'S23_EB-epo_alpha_motor-ave', 
+    #         'S24_EB-epo_alpha_motor-ave'
+    #         ],
+    #     'dat1_files': [
+    #         'S01_EB-epo_alpha_non-motor-ave', 
+    #         'S02_EB-epo_alpha_non-motor-ave', 
+    #         'S03_EB-epo_alpha_non-motor-ave', 
+    #         'S04_EB-epo_alpha_non-motor-ave', 
+    #         'S05_EB-epo_alpha_non-motor-ave', 
+    #         'S06_EB-epo_alpha_non-motor-ave', 
+    #         'S07_EB-epo_alpha_non-motor-ave', 
+    #         'S08_EB-epo_alpha_non-motor-ave',
+    #         'S09_EB-epo_alpha_non-motor-ave', 
+    #         'S10_EB-epo_alpha_non-motor-ave', 
+    #         'S11_EB-epo_alpha_non-motor-ave', 
+    #         'S12_EB-epo_alpha_non-motor-ave', 
+    #         'S13_EB-epo_alpha_non-motor-ave', 
+    #         'S14_EB-epo_alpha_non-motor-ave', 
+    #         'S15_EB-epo_alpha_non-motor-ave', 
+    #         'S16_EB-epo_alpha_non-motor-ave',
+    #         'S17_EB-epo_alpha_non-motor-ave', 
+    #         'S18_EB-epo_alpha_non-motor-ave', 
+    #         'S19_EB-epo_alpha_non-motor-ave', 
+    #         'S20_EB-epo_alpha_non-motor-ave', 
+    #         'S21_EB-epo_alpha_non-motor-ave', 
+    #         'S22_EB-epo_alpha_non-motor-ave', 
+    #         'S23_EB-epo_alpha_non-motor-ave', 
+    #         'S24_EB-epo_alpha_non-motor-ave'
+    #         ],
+    #     'statwin': [.500, .800],
+    #     'condnames': ['motor','non-motor'], # Only used for plotting and storing if is a group study
+    #     'stat': 'dep',                            # indep or dep
+    #     'threshold': .05,  # None means p<.05 for F/t only; for TFCE=dict(start=0, step=0.2)
+    #     'p_accept': .05,                            # cluster threshold
+    #     'tail': -1,                                  # tail of test; 1, 0, or -1
+    #     'n_permutations': 1000                       # at least 1000
+    #     },
+    # {
+    #     'analysis_name': 'beta',   # the analysis will be saved under this name, so make it good        
+    #     'dat0_files': [
+    #         'S01_EB-epo_beta_motor-ave', 
+    #         'S02_EB-epo_beta_motor-ave', 
+    #         'S03_EB-epo_beta_motor-ave', 
+    #         'S04_EB-epo_beta_motor-ave', 
+    #         'S05_EB-epo_beta_motor-ave', 
+    #         'S06_EB-epo_beta_motor-ave', 
+    #         'S07_EB-epo_beta_motor-ave', 
+    #         'S08_EB-epo_beta_motor-ave',
+    #         'S09_EB-epo_beta_motor-ave', 
+    #         'S10_EB-epo_beta_motor-ave', 
+    #         'S11_EB-epo_beta_motor-ave', 
+    #         'S12_EB-epo_beta_motor-ave', 
+    #         'S13_EB-epo_beta_motor-ave', 
+    #         'S14_EB-epo_beta_motor-ave', 
+    #         'S15_EB-epo_beta_motor-ave', 
+    #         'S16_EB-epo_beta_motor-ave',
+    #         'S17_EB-epo_beta_motor-ave', 
+    #         'S18_EB-epo_beta_motor-ave', 
+    #         'S19_EB-epo_beta_motor-ave', 
+    #         'S20_EB-epo_beta_motor-ave', 
+    #         'S21_EB-epo_beta_motor-ave', 
+    #         'S22_EB-epo_beta_motor-ave', 
+    #         'S23_EB-epo_beta_motor-ave', 
+    #         'S24_EB-epo_beta_motor-ave'
+    #         ],
+    #     'dat1_files': [
+    #         'S01_EB-epo_beta_non-motor-ave', 
+    #         'S02_EB-epo_beta_non-motor-ave', 
+    #         'S03_EB-epo_beta_non-motor-ave', 
+    #         'S04_EB-epo_beta_non-motor-ave', 
+    #         'S05_EB-epo_beta_non-motor-ave', 
+    #         'S06_EB-epo_beta_non-motor-ave', 
+    #         'S07_EB-epo_beta_non-motor-ave', 
+    #         'S08_EB-epo_beta_non-motor-ave',
+    #         'S09_EB-epo_beta_non-motor-ave', 
+    #         'S10_EB-epo_beta_non-motor-ave', 
+    #         'S11_EB-epo_beta_non-motor-ave', 
+    #         'S12_EB-epo_beta_non-motor-ave', 
+    #         'S13_EB-epo_beta_non-motor-ave', 
+    #         'S14_EB-epo_beta_non-motor-ave', 
+    #         'S15_EB-epo_beta_non-motor-ave', 
+    #         'S16_EB-epo_beta_non-motor-ave',
+    #         'S17_EB-epo_beta_non-motor-ave', 
+    #         'S18_EB-epo_beta_non-motor-ave', 
+    #         'S19_EB-epo_beta_non-motor-ave', 
+    #         'S20_EB-epo_beta_non-motor-ave', 
+    #         'S21_EB-epo_beta_non-motor-ave', 
+    #         'S22_EB-epo_beta_non-motor-ave', 
+    #         'S23_EB-epo_beta_non-motor-ave', 
+    #         'S24_EB-epo_beta_non-motor-ave'
+    #         ],
+    #     'statwin': [.1, .800],
+    #     'condnames': ['motor','non-motor'], # Only used for plotting and storing if is a group study
+    #     'stat': 'dep',                            # indep or dep
+    #     'threshold': .05,  # None means p<.05 for F/t only; for TFCE=dict(start=0, step=0.2)
+    #     'p_accept': .05,                            # cluster threshold
+    #     'tail': 0,                                  # tail of test; 1, 0, or -1
+    #     'n_permutations': 1000                       # at least 1000
+    #     },
     {
-        'analysis_name': 'within',   # the analysis will be saved under this name, so make it good        
+        'analysis_name': 'single-subject',   # the analysis will be saved under this name, so make it good        
+        'multi-subject': True, # i.e. we want to run the same analysis on multiple single subjects
         'dat0_files': [
-            'S01_EB-epo_alpha_motor-ave', 
-            'S02_EB-epo_alpha_motor-ave', 
-            'S03_EB-epo_alpha_motor-ave', 
-            'S04_EB-epo_alpha_motor-ave', 
-            'S05_EB-epo_alpha_motor-ave', 
-            'S06_EB-epo_alpha_motor-ave', 
-            'S07_EB-epo_alpha_motor-ave', 
-            'S08_EB-epo_alpha_motor-ave',
-            'S09_EB-epo_alpha_motor-ave', 
-            'S10_EB-epo_alpha_motor-ave', 
-            'S11_EB-epo_alpha_motor-ave', 
-            'S12_EB-epo_alpha_motor-ave', 
-            'S13_EB-epo_alpha_motor-ave', 
-            'S14_EB-epo_alpha_motor-ave', 
-            'S15_EB-epo_alpha_motor-ave', 
-            'S16_EB-epo_alpha_motor-ave',
-            'S17_EB-epo_alpha_motor-ave', 
-            'S18_EB-epo_alpha_motor-ave', 
-            'S19_EB-epo_alpha_motor-ave', 
-            'S20_EB-epo_alpha_motor-ave', 
-            'S21_EB-epo_alpha_motor-ave', 
-            'S22_EB-epo_alpha_motor-ave', 
-            'S23_EB-epo_alpha_motor-ave', 
-            'S24_EB-epo_alpha_motor-ave'
+            'S01_EB_alpha_motor-epo', 
+            'S02_EB_alpha_motor-epo', 
+            'S03_EB_alpha_motor-epo', 
+            'S04_EB_alpha_motor-epo', 
+            'S05_EB_alpha_motor-epo', 
+            'S06_EB_alpha_motor-epo', 
+            'S07_EB_alpha_motor-epo', 
+            'S08_EB_alpha_motor-epo',
+            'S09_EB_alpha_motor-epo', 
+            'S10_EB_alpha_motor-epo', 
+            'S11_EB_alpha_motor-epo', 
+            'S12_EB_alpha_motor-epo', 
+            'S13_EB_alpha_motor-epo', 
+            'S14_EB_alpha_motor-epo', 
+            'S15_EB_alpha_motor-epo', 
+            'S16_EB_alpha_motor-epo',
+            'S17_EB_alpha_motor-epo', 
+            'S18_EB_alpha_motor-epo', 
+            'S19_EB_alpha_motor-epo', 
+            'S20_EB_alpha_motor-epo', 
+            'S21_EB_alpha_motor-epo', 
+            'S22_EB_alpha_motor-epo', 
+            'S23_EB_alpha_motor-epo', 
+            'S24_EB_alpha_motor-epo'
             ],
         'dat1_files': [
-            'S01_EB-epo_alpha_non-motor-ave', 
-            'S02_EB-epo_alpha_non-motor-ave', 
-            'S03_EB-epo_alpha_non-motor-ave', 
-            'S04_EB-epo_alpha_non-motor-ave', 
-            'S05_EB-epo_alpha_non-motor-ave', 
-            'S06_EB-epo_alpha_non-motor-ave', 
-            'S07_EB-epo_alpha_non-motor-ave', 
-            'S08_EB-epo_alpha_non-motor-ave',
-            'S09_EB-epo_alpha_non-motor-ave', 
-            'S10_EB-epo_alpha_non-motor-ave', 
-            'S11_EB-epo_alpha_non-motor-ave', 
-            'S12_EB-epo_alpha_non-motor-ave', 
-            'S13_EB-epo_alpha_non-motor-ave', 
-            'S14_EB-epo_alpha_non-motor-ave', 
-            'S15_EB-epo_alpha_non-motor-ave', 
-            'S16_EB-epo_alpha_non-motor-ave',
-            'S17_EB-epo_alpha_non-motor-ave', 
-            'S18_EB-epo_alpha_non-motor-ave', 
-            'S19_EB-epo_alpha_non-motor-ave', 
-            'S20_EB-epo_alpha_non-motor-ave', 
-            'S21_EB-epo_alpha_non-motor-ave', 
-            'S22_EB-epo_alpha_non-motor-ave', 
-            'S23_EB-epo_alpha_non-motor-ave', 
-            'S24_EB-epo_alpha_non-motor-ave'
-            ],
-        'statwin': [.500, .800],
-        'condnames': ['motor','non-motor'], # Only used for plotting and storing if is a group study
-        'stat': 'dep',                            # indep or dep
-        'threshold': .05,  # None means p<.05 for F/t only; for TFCE=dict(start=0, step=0.2)
-        'p_accept': .05,                            # cluster threshold
-        'tail': 0,                                  # tail of test; 1, 0, or -1
-        'n_permutations': 1000                       # at least 1000
-        },
-        # analysis 2
-    {
-        'analysis_name': 'single_subject',   # the analysis will be saved under this name, so make it good        
-        'dat0_files': [
-            'S04_EB_alpha_motor-epo'
-            ],
-        'dat1_files': [
-            'S04_EB_alpha_non-motor-epo'            
+            'S01_EB_alpha_non-motor-epo', 
+            'S02_EB_alpha_non-motor-epo', 
+            'S03_EB_alpha_non-motor-epo', 
+            'S04_EB_alpha_non-motor-epo', 
+            'S05_EB_alpha_non-motor-epo', 
+            'S06_EB_alpha_non-motor-epo', 
+            'S07_EB_alpha_non-motor-epo', 
+            'S08_EB_alpha_non-motor-epo',
+            'S09_EB_alpha_non-motor-epo', 
+            'S10_EB_alpha_non-motor-epo', 
+            'S11_EB_alpha_non-motor-epo', 
+            'S12_EB_alpha_non-motor-epo', 
+            'S13_EB_alpha_non-motor-epo', 
+            'S14_EB_alpha_non-motor-epo', 
+            'S15_EB_alpha_non-motor-epo', 
+            'S16_EB_alpha_non-motor-epo',
+            'S17_EB_alpha_non-motor-epo', 
+            'S18_EB_alpha_non-motor-epo', 
+            'S19_EB_alpha_non-motor-epo', 
+            'S20_EB_alpha_non-motor-epo', 
+            'S21_EB_alpha_non-motor-epo', 
+            'S22_EB_alpha_non-motor-epo', 
+            'S23_EB_alpha_non-motor-epo', 
+            'S24_EB_alpha_non-motor-epo'
             ],
         'statwin': [.500, .800],
         'condnames': ['motor','non-motor'], # Only used for plotting and storing if is a group study
@@ -157,5 +326,5 @@ stats_params = (
         'p_accept': .05,                            # cluster threshold
         'tail': -1,                                  # tail of test; 1, 0, or -1
         'n_permutations': 1000                       # at least 1000
-        },
-    )
+        }        
+    ]   
