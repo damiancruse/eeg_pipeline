@@ -48,8 +48,8 @@ def run_sensor_stats():
                 dat1, evokeds1, _ = collect_data([dat1_files[statrun]],condnames[1],tmin,tmax,ismulti)    
             else:
                 # collect together the data to be compared
-                dat0, evokeds0, connectivity = collect_data(dat0_files,condnames[0],tmin,tmax)
-                dat1, evokeds1, _ = collect_data(dat1_files,condnames[1],tmin,tmax)        
+                dat0, evokeds0, connectivity = collect_data(dat0_files,condnames[0],tmin,tmax,ismulti)
+                dat1, evokeds1, _ = collect_data(dat1_files,condnames[1],tmin,tmax,ismulti)        
                 
             alldata = [] 
 
@@ -77,7 +77,7 @@ def run_sensor_stats():
                                                         threshold=threshold_stat, 
                                                         tail=tail, stat_fun=stat_fun,
                                                         n_jobs=1, buffer_size=None,
-                                                        connectivity=connectivity[0])
+                                                        connectivity=connectivity)
             elif config.stats_params[c]['stat'] == 'dep':
                 # we have to use 1-sample t-tests here so also need to subtract conditions
                 alldata = dat0 - dat1
@@ -85,7 +85,7 @@ def run_sensor_stats():
                                                         threshold=threshold_stat, 
                                                         tail=tail, stat_fun=stat_fun,
                                                         n_jobs=1, buffer_size=None,
-                                                        connectivity=connectivity[0])
+                                                        connectivity=connectivity)
 
             # extract stats of interest
             T_obs, clusters, p_values, _ = cluster_stats
@@ -204,7 +204,7 @@ def collect_data(dat0_files,condname,tmin,tmax,ismulti):
             if nfiles0 != 1:
                 ev_dat0 = mne.read_evokeds(dat_file,condition=condname)
             else:
-                ev_dat0 = mne.read_epochs(dat_file)
+                ev_dat0 = mne.read_epochs(dat_file)            
             # We use the first dataset to create empty variables we fill in subsequently
             if dat_idx == 0:
                 if nfiles0 != 1:            
@@ -213,7 +213,11 @@ def collect_data(dat0_files,condname,tmin,tmax,ismulti):
                     # we store all trials for single subject stats
                     dat0_orig = ev_dat0[condname].get_data()            
                 # find electrode neighbourhoods
-                connectivity = find_ch_connectivity(ev_dat0.info, ch_type='eeg')                                
+                if len(ev_dat0.ch_names) == 1:
+                    connectivity = None
+                else:
+                    connectivity = find_ch_connectivity(ev_dat0.info, ch_type='eeg')     
+                    connectivity = connectivity[0]                           
             # store the data for later plotting
             evokeds0.append(ev_dat0.copy())
 

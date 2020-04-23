@@ -19,8 +19,7 @@ def preprocess(subjname):
     raw.drop_channels(['HEOGR','HEOGL','VEOGU','VEOGL','M1','M2'])
 
     # get and import electrode locations
-    montage = mne.channels.read_montage('standard_1005')
-    raw.set_montage(montage)
+    raw.set_montage('standard_1005')
 
     # create copy for use in ICA
     raw_4_ica = raw.copy()
@@ -36,7 +35,7 @@ def preprocess(subjname):
     fake_events = np.column_stack((fake_event_time,fake_event_ids))
     fake_events = fake_events.astype(int)       # needs to be an array of integers
     tmin, tmax = 0, (raw_4_ica.info['sfreq']-1)/raw_4_ica.info['sfreq']
-    epochs_4_ica = mne.Epochs(raw_4_ica, events=fake_events, tmin=tmin, tmax=tmax)
+    epochs_4_ica = mne.Epochs(raw_4_ica, events=fake_events, tmin=tmin, tmax=tmax, baseline=(tmin,tmax))
 
     # identify bad data before running ICA
     epochs_4_ica.load_data()

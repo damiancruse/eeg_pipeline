@@ -3,7 +3,6 @@ import os.path as op
 import sys
 import numpy as np
 import eeg_pipeline.config as config
-import pickle
 import pandas as pd
 
 def finalise():
