@@ -126,8 +126,9 @@ def preprocess(subjname):
     # put the reference channel back in
     epochs = mne.add_reference_channels(epochs,'CPz',copy=False)
 
-    # convert to average reference
+    # convert to average reference and update channel locations
     epochs.set_eeg_reference(ref_channels='average',projection=False)
+    epochs.set_montage('standard_1005')
 
     # save the data
     fname = op.join(config.epoch_path, subjname + '-epo.fif')
