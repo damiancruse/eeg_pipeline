@@ -76,7 +76,7 @@ def preprocess(subjname):
     # extract events - BV data has markers as annotations
     events, event_id = mne.events_from_annotations(raw)
 
-    # AWFUL HACK TO FIX TIMING PROBLEMS OF EMBODIMENT TRIGGERS £
+    # AWFUL HACK TO FIX TIMING PROBLEMS OF EMBODIMENT TRIGGERS
     events[:,0] = events[:,0] - round(raw.info['sfreq']*.117)
     # END OF HACK #
     
@@ -109,9 +109,6 @@ def preprocess(subjname):
     bad_chans, bad_trials = find_bad_data(epoch_data)
     epochs.info['bads'] = [epochs.info['ch_names'][i] for i in bad_chans]
     epochs.drop(bad_trials,'AUTO')
-
-    # interpolate bad channels back into data
-    epochs.interpolate_bads(reset_bads=False)
 
     # baseline correct again as ICA will have affected
     epochs.apply_baseline()     # with no arguments this defaults to (None,0)
